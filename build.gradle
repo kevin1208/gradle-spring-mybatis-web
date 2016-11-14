@@ -1,0 +1,100 @@
+buildscript {
+    repositories {
+   mavenLocal()
+   maven{ url 'http://repo1.maven.org/maven2'}
+   mavenCentral()
+   jcenter()
+    }
+ 
+    dependencies {
+        classpath 'com.bmuschko:gradle-tomcat-plugin:2.2.4'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'war' //用来生成war
+apply plugin: 'eclipse-wtp' //用来生成Eclipseweb项目的插件（web-tool-platform）
+apply plugin: 'com.bmuschko.tomcat'
+
+version = '1.0' //property
+war.baseName = 'gradle-demo'
+project.webAppDirName = 'src/main/webapp'
+ 
+// Uses JDK 7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+configurations {
+	provided
+}
+
+repositories {
+   mavenLocal()
+   maven{ url 'http://repo1.maven.org/maven2'}
+   mavenCentral()
+   jcenter()
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs = ["src/main/resource", "src/main/java"]
+        }
+    }
+}
+
+
+// In this section you declare the dependencies for your production and test code
+dependencies {
+	//def spring_version='4.3.4.RELEASE'
+
+ compile (
+ 'jstl:jstl:1.2',
+ 'org.springframework:spring-beans:4.3.4.RELEASE',
+ 'org.springframework:spring-web:4.3.4.RELEASE',
+ 'org.springframework:spring-webmvc:4.3.4.RELEASE',
+ 'org.springframework:spring-tx:4.3.4.RELEASE',
+ 'org.springframework:spring-jdbc:4.3.4.RELEASE',
+ 'org.springframework:spring-test:4.3.3.RELEASE',
+ 'com.alibaba:druid:1.0.26',
+ 'org.aspectj:aspectjweaver:1.8.9',
+ 'org.mybatis:mybatis-spring:1.3.0',
+ 'org.mybatis:mybatis:3.4.1',
+ 'org.mybatis.generator:mybatis-generator-core:1.3.5',
+ 'org.postgresql:postgresql:9.4.1211.jre7',
+ 'com.bmuschko:gradle-tomcat-plugin:2.2.4',
+ 'com.fasterxml.jackson.core:jackson-databind:2.8.4',
+ 'com.fasterxml.jackson.core:jackson-core:2.8.4',
+ 'com.fasterxml.jackson.core:jackson-annotations:2.8.4',
+ 
+// 'javax.servlet:javax.servlet-api:3.1.0',
+ //'log4j:log4j:1.2.17',
+ 'org.slf4j:slf4j-nop:1.7.21',
+ 'org.slf4j:slf4j-api:1.7.21'
+ )
+  compile 'javax:javaee-api:7.0'
+  //providedCompile 'org.apache.tomcat:tomcat-servlet-api:8.0.38'
+  testCompile 'junit:junit:4.12'
+
+  def tomcatVersion = '8.0.38'
+  //def tomcatVersion = '7.0.59'
+
+  tomcat	"org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
+			"org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}",
+			"org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}"  
+    
+}
+
+//注意下面这个配置，新版本gradle如果不使用数组添加的话会导致eclipse频繁报错
+eclipse.classpath.plusConfigurations += [configurations.provided]
+tasks.withType(JavaCompile) {  
+	options.encoding = 'UTF-8' 
+}
+tomcatRun.contextPath = '/gradle-demo'
+tomcatRunWar.contextPath = '/gradle-demo'
+
+tomcat {
+    httpPort = 8080
+    httpsPort = 8091
+    enableSSL = true
+}
